@@ -48,9 +48,13 @@
 .product__navigation-item {
   display: block;
   height: 4px;
-  width: calc(100% / 5);
   background-color: var(--disabled-bg);
   opacity: 0.25;
+  z-index: 300;
+}
+
+.product__navigation-item:not(.product__navigation-item--active) {
+  cursor: pointer;
 }
 
 .product__navigation-item:not(:last-of-type) {

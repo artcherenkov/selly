@@ -1,6 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
+import ImageNavigation from './components/image-navigation/image-navigation';
+import { MAX_PHOTOS_COUNT } from '../../const';
 
-const Card = () => {
+const Card = ({ product, setIsPopupShown }) => {
+  const { address, name, price, photos } = product;
+  const { city, street } = address;
+
+  const [activePhoto, setActivePhoto] = useState(0);
+
+  const showedPhotosCount = photos.length > MAX_PHOTOS_COUNT ? MAX_PHOTOS_COUNT : photos.length;
+  const shouldShowPhotoOverlay = (showedPhotosCount < photos.length) && (activePhoto === showedPhotosCount - 1);
+
   return (
     <li className="results__item product">
       <button className="product__favourite fav-add" type="button" aria-label="Добавить в избранное">
@@ -9,20 +19,20 @@ const Card = () => {
         </svg>
       </button>
       <div className="product__image">
-        <div className="product__image-more-photo hidden">+2 фото</div>
-        <img src="img/item1.jpg" srcSet="img/item1-2x.jpg 2x" width="318" height="220" alt="Загородный дом с видом на озеро"/>
-        <div className="product__image-navigation">
-          <span className="product__navigation-item product__navigation-item--active"/>
-          <span className="product__navigation-item"/> <span className="product__navigation-item"/>
-          <span className="product__navigation-item"/> <span className="product__navigation-item"/>
+        <div className={`product__image-more-photo ${shouldShowPhotoOverlay ? '' : 'hidden'}`}>
+          +{photos.length - showedPhotosCount} фото
         </div>
+        <img src={photos[activePhoto]} alt={name} />
+        <ImageNavigation count={photos.length} activePhoto={activePhoto} setActivePhoto={setActivePhoto} />
       </div>
       <div className="product__content">
         <h3 className="product__title">
-          <a href="/">Загородный дом с видом на озеро</a>
+          <button onClick={() => setIsPopupShown(true)}>
+            {name}
+          </button>
         </h3>
-        <div className="product__price">3 000 000 ₽</div>
-        <div className="product__address">Приозёрск, улица Прибрежная</div>
+        <div className="product__price">{price.toLocaleString()} ₽</div>
+        <div className="product__address">{city}, улица {street.replace('ул.', '')}</div>
         <div className="product__date">2 часа назад</div>
       </div>
     </li>
