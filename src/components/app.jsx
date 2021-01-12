@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { connect } from 'react-redux';
 
 import Main from './main/main';
 import Ad from './ad/ad';
+import { getIsAdShown } from '../store/reducers/app-state/selectors';
 
-const App = () => {
-  const [isPopupShown, setIsPopupShown] = useState(false);
+const App = ({ isAdShown }) => {
   return (
     <>
       <main>
@@ -13,13 +14,18 @@ const App = () => {
           <div className="onlineshop-app__blueline"/>
           <div className="onlineshop-app__wrapper">
             {/*<Filter/>*/}
-            <Main setIsPopupShown={setIsPopupShown}/>
+            <Main />
           </div>
         </section>
       </main>
-      {isPopupShown && <Ad setIsPopupShown={setIsPopupShown} />}
+      {isAdShown && <Ad />}
     </>
   );
 };
 
-export default App;
+const mapStateToProps = (state) => ({
+  isAdShown: getIsAdShown(state),
+});
+
+export { App };
+export default connect(mapStateToProps, null)(App);

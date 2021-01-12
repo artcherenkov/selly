@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
+import { connect } from 'react-redux';
+
 import ImageNavigation from './components/image-navigation/image-navigation';
 import { MAX_PHOTOS_COUNT } from '../../const';
+import { toggleForm } from '../../store/action';
+import { formatDate, formatStreet } from '../../utils';
 
-const Card = ({ product, setIsPopupShown }) => {
-  const { address, name, price, photos } = product;
+const Card = ({ product, handleOpenBtnClick }) => {
+  const { address, name, price, photos, publishDate } = product;
   const { city, street } = address;
 
   const [activePhoto, setActivePhoto] = useState(0);
@@ -22,20 +26,30 @@ const Card = ({ product, setIsPopupShown }) => {
         <div className={`product__image-more-photo ${shouldShowPhotoOverlay ? '' : 'hidden'}`}>
           +{photos.length - showedPhotosCount} фото
         </div>
-        <img src={photos[activePhoto]} alt={name} />
+        <img src={photos[activePhoto]} alt={name} width={318} height={220} />
         <ImageNavigation count={photos.length} activePhoto={activePhoto} setActivePhoto={setActivePhoto} />
       </div>
       <div className="product__content">
         <h3 className="product__title">
-          <button onClick={() => setIsPopupShown(true)}>
+          <button onClick={handleOpenBtnClick.bind(this, product)}>
             {name}
           </button>
         </h3>
         <div className="product__price">{price.toLocaleString()} ₽</div>
-        <div className="product__address">{city}, улица {street.replace('ул.', '')}</div>
-        <div className="product__date">2 часа назад</div>
+        <div className="product__address">
+          {city}, {formatStreet(street)}
+        </div>
+        <div className="product__date">{formatDate(publishDate)}</div>
       </div>
     </li>
   );
 };
-export default Card;
+
+const mapDispatchToProps = (dispatch) => ({
+  handleOpenBtnClick(product) {
+    dispatch(toggleForm(product));
+  }
+});
+
+export { Card };
+export default connect(null, mapDispatchToProps)(Card);

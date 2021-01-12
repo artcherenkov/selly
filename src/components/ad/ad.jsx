@@ -1,17 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { connect } from 'react-redux';
 
-const Ad = ({ setIsPopupShown }) => {
+import { toggleForm } from '../../store/action';
+import { getActiveAd } from '../../store/reducers/app-state/selectors';
+import { formatDate, formatStreet } from '../../utils';
+
+const Ad = ({ activeAd, handleCloseBtnClick }) => {
+  const { name, price, photos, seller, description, filters, address, publishDate } = activeAd;
+  const { fullname, rating } = seller;
+  const { city, street, building } = address;
+
+  const [activePhoto, setActivePhoto] = useState(0);
+
   return (
     <section className="popup popup--active">
       <div className="popup__inner">
-        <button className="popup__close" type="button" aria-label="Закрыть" onClick={() => setIsPopupShown(false)}>
+        <button className="popup__close" type="button" aria-label="Закрыть" onClick={handleCloseBtnClick}>
           <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
             <path fillRule="evenodd" clipRule="evenodd" d="M0.292893 0.292893C0.683418 -0.0976311 1.31658 -0.0976311 1.70711 0.292893L8 6.58579L14.2929 0.292893C14.6834 -0.0976311 15.3166 -0.0976311 15.7071 0.292893C16.0976 0.683418 16.0976 1.31658 15.7071 1.70711L9.41421 8L15.7071 14.2929C16.0976 14.6834 16.0976 15.3166 15.7071 15.7071C15.3166 16.0976 14.6834 16.0976 14.2929 15.7071L8 9.41421L1.70711 15.7071C1.31658 16.0976 0.683418 16.0976 0.292893 15.7071C-0.0976311 15.3166 -0.0976311 14.6834 0.292893 14.2929L6.58579 8L0.292893 1.70711C-0.0976311 1.31658 -0.0976311 0.683418 0.292893 0.292893Z"/>
           </svg>
         </button>
-        <div className="popup__date">3 дня назад</div>
-        <h3 className="popup__title">Ford Mustang 2020</h3>
-        <div className="popup__price">2 950 000 ₽</div>
+        <div className="popup__date">{formatDate(publishDate)}</div>
+        <h3 className="popup__title">{name}</h3>
+        <div className="popup__price">{price.toLocaleString()} ₽</div>
         <div className="popup__columns">
           <div className="popup__left">
             <div className="popup__gallery gallery">
@@ -21,59 +32,41 @@ const Ad = ({ setIsPopupShown }) => {
                 </svg>
               </button>
               <div className="gallery__main-pic">
-                <img src="img/car-big.jpg" srcSet="img/car-big-2x.jpg 2x" width="520" height="340" alt="Ford Mustang 2020"/>
+                <img src={photos[activePhoto]} width="520" height="340" alt={name}/>
               </div>
               <ul className="gallery__list">
-                <li className="gallery__item gallery__item--active">
-                  <img src="img/car1.jpg" srcSet="img/car1-2x.jpg 2x" alt="Ford Mustang 2020" width="124" height="80"/>
-                </li>
-                <li className="gallery__item">
-                  <img src="img/car2.jpg" srcSet="img/car2-2x.jpg 2x" alt="Ford Mustang 2020" width="124" height="80"/>
-                </li>
-                <li className="gallery__item">
-                  <img src="img/car3.jpg" srcSet="img/car3-2x.jpg 2x" alt="Ford Mustang 2020" width="124" height="80"/>
-                </li>
-                <li className="gallery__item">
-                  <img src="img/car4.jpg" srcSet="img/car4-2x.jpg 2x" alt="Ford Mustang 2020" width="124" height="80"/>
-                </li>
-                <li className="gallery__item">
-                  <img src="img/car5.jpg" srcSet="img/car5-2x.jpg 2x" alt="Ford Mustang 2020" width="124" height="80"/>
-                </li>
+                {photos.map((item, i) => (
+                  <li key={`photo-${i}`} className={`gallery__item ${activePhoto === i ? 'gallery__item--active' : ''}`}>
+                    <img src={item} alt={name} width="124" height="80" onClick={setActivePhoto.bind(this, i)}/>
+                  </li>
+                ))}
               </ul>
             </div>
             <ul className="popup__chars chars">
-              <li className="chars__item">
-                <div className="chars__name">Год выпуска</div>
-                <div className="chars__value">1999</div>
-              </li>
-              <li className="chars__item">
-                <div className="chars__name">Коробка передач</div>
-                <div className="chars__value">механическая</div>
-              </li>
-              <li className="chars__item">
-                <div className="chars__name">Тип кузова</div>
-                <div className="chars__value">внедорожник</div>
-              </li>
+              {Object.entries(filters).map(([key, val], i) => (
+                <li key={`addition-${i}`} className="chars__item">
+                  <div className="chars__name">{key}</div>
+                  <div className="chars__value">{val}</div>
+                </li>
+              ))}
             </ul>
             <div className="popup__seller seller seller--good">
               <h3>Продавец</h3>
               <div className="seller__inner">
-                <a className="seller__name" href="#">Автосалон Pony Car</a>
-                <div className="seller__rating"><span>4.9</span></div>
+                <span className="seller__name">{fullname}</span>
+                <div className="seller__rating"><span>{rating}</span></div>
               </div>
             </div>
             <div className="popup__description">
               <h3>Описание товара</h3>
-              <p>Форд Мустанг 2020 года выпуска, один владелец, пробег 1 км, объём двигателя 5,8 литра, 662 л.с.,
-                максимальная скорость — 320 км/ч. Причина продажи — страшно ездить.
-              </p>
+              <p>{description}</p>
             </div>
           </div>
           <div className="popup__right">
             <div className="popup__map">
               <img src="img/map.jpg" width="268" height="180" alt="Москва, Нахимовский проспект, дом 5"/>
             </div>
-            <div className="popup__address">Москва, Нахимовский проспект, дом 5</div>
+            <div className="popup__address">{city}, {formatStreet(street)}, дом {building.replace('д.' , '')}</div>
           </div>
         </div>
       </div>
@@ -81,4 +74,15 @@ const Ad = ({ setIsPopupShown }) => {
   );
 };
 
-export default Ad;
+const mapStateToProps = (state) => ({
+  activeAd: getActiveAd(state),
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  handleCloseBtnClick() {
+    dispatch(toggleForm());
+  }
+});
+
+export { Ad };
+export default connect(mapStateToProps, mapDispatchToProps)(Ad);

@@ -1,3 +1,7 @@
+import moment from 'moment';
+import 'moment/locale/ru';
+moment.locale('ru');
+
 export const renameKeys = obj => {
   const processVal = val => {
     if (typeof val !== 'object') {
@@ -33,4 +37,26 @@ export const range = (count) => {
   }
 
   return res;
+}
+
+export const formatStreet = (street) => street.includes('ул.') ? `улица ${street.replace('ул.', '').trim()}` : `${street}`;
+
+export const formatDate = (_date) => {
+  const date = moment(+_date);
+
+  const diffInDays = Math.floor(moment.duration(moment().diff(date)).asDays());
+  const diffInYears = Math.floor(moment.duration(moment().diff(date)).asYears());
+
+  // 7 days ago or less
+  if (diffInDays <= 7) {
+    return date.fromNow();
+  }
+
+  // less than a year ago
+  if (!diffInYears) {
+    return date.format('D MMMM');
+  }
+
+  // more than a year ago
+  return date.format('D MMMM YYYY года');
 }
